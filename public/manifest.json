@@ -1,0 +1,30 @@
+{
+  "name": "Home Game",
+  "short_name": "Home Game",
+  "id": "/homegame/",
+  "start_url": "/homegame/",
+  "scope": "/homegame/",
+  "display": "standalone",
+  "background_color": "#71133f",
+  "theme_color": "#71133f",
+  "icons": [
+    {
+      "src": "/homegame/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/homegame/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/homegame/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
