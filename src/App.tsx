@@ -1,9 +1,14 @@
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import {
   Button,
   Grid,
+  IconButton,
   Stack,
 } from '@mui/material';
+import {
+  MusicNote,
+  Stop,
+} from '@mui/icons-material';
 import * as Assets from './assets';
 import {
   CssBaseline,
@@ -11,7 +16,8 @@ import {
 
 type Team = {
   name: string;
-  url: string;
+  logo: string;
+  song: string;
   disabled?: boolean;
   background: string;
   foreground: string;
@@ -80,24 +86,24 @@ type GameState =
   | GameStateCompleted;
 
 const teams: Team[] = [
-  { name: 'Adelaide Crows', url: Assets.ADEL, background: '#0f1432', foreground: '#f0ae3c' },
-  { name: 'Brisbane Lions', url: Assets.BL, background: '#71133f', foreground: '#f4c16a', disabled: true },
-  { name: 'Carlton Blues', url: Assets.CARL, background: '#091f31', foreground: '#ffffff' },
-  { name: 'Collingwood Magpies', url: Assets.COLL, background: '#000000', foreground: '#ffffff' },
-  { name: 'Essendon Bombers', url: Assets.ESS, background: '#000000', foreground: '#ffffff' },
-  { name: 'Fremantle Dockers', url: Assets.FRE, background: '#260e50', foreground: '#fff' },
-  { name: 'Gold Coast Suns', url: Assets.GCFC, background: '#7d1710', foreground: '#f9e26f' },
-  { name: 'Geelong Cats', url: Assets.GEEL, background: '#ffffff', foreground: '#0a2243' },
-  { name: 'GWS Giants', url: Assets.GWS, background: '#535051', foreground: '#ed8536' },
-  { name: 'Hawthorn Hawks', url: Assets.HAW, background: '#643f1a', foreground: '#f7cd4e' },
-  { name: 'Melbourne Demons', url: Assets.MELB, background: '#0d192f', foreground: '#cc2c26' },
-  { name: 'North Melbourne Kangaroos', url: Assets.NMFC, background: '#16399a', foreground: '#ffffff' },
-  { name: 'Port Adelaide Power', url: Assets.PORT, background: '#3d83af', foreground: '#ffffff' },
-  { name: 'Richmond Tigers', url: Assets.RICH, background: '#000000', foreground: '#f4d849' },
-  { name: 'St Kilda Saints', url: Assets.STK, background: '#000000', foreground: '#ffffff' },
-  { name: 'Sydney Swans', url: Assets.SYD, background: '#ffffff', foreground: '#d03d32' },
-  { name: 'Western Bulldogs', url: Assets.WB, background: '#2042a6', foreground: '#ffffff' },
-  { name: 'West Coast Eagles', url: Assets.WCE, background: '#183c8f', foreground: '#e6aa3b' },
+  { name: 'Adelaide Crows', logo: Assets.ADEL.logo, song: Assets.ADEL.song, background: '#0f1432', foreground: '#f0ae3c' },
+  { name: 'Brisbane Lions', logo: Assets.BL.logo, song: Assets.BL.song, background: '#71133f', foreground: '#f4c16a', disabled: true },
+  { name: 'Carlton Blues', logo: Assets.CARL.logo, song: Assets.CARL.song, background: '#091f31', foreground: '#ffffff' },
+  { name: 'Collingwood Magpies', logo: Assets.COLL.logo, song: Assets.COLL.song, background: '#000000', foreground: '#ffffff' },
+  { name: 'Essendon Bombers', logo: Assets.ESS.logo, song: Assets.ESS.song, background: '#000000', foreground: '#ffffff' },
+  { name: 'Fremantle Dockers', logo: Assets.FRE.logo, song: Assets.FRE.song, background: '#260e50', foreground: '#fff' },
+  { name: 'Gold Coast Suns', logo: Assets.GCFC.logo, song: Assets.GCFC.song, background: '#7d1710', foreground: '#f9e26f' },
+  { name: 'Geelong Cats', logo: Assets.GEEL.logo, song: Assets.GEEL.song, background: '#ffffff', foreground: '#0a2243' },
+  { name: 'GWS Giants', logo: Assets.GWS.logo, song: Assets.GWS.song, background: '#535051', foreground: '#ed8536' },
+  { name: 'Hawthorn Hawks', logo: Assets.HAW.logo, song: Assets.HAW.song, background: '#643f1a', foreground: '#f7cd4e' },
+  { name: 'Melbourne Demons', logo: Assets.MELB.logo, song: Assets.MELB.song, background: '#0d192f', foreground: '#cc2c26' },
+  { name: 'North Melbourne Kangaroos', logo: Assets.NMFC.logo, song: Assets.NMFC.song, background: '#16399a', foreground: '#ffffff' },
+  { name: 'Port Adelaide Power', logo: Assets.PORT.logo, song: Assets.PORT.song, background: '#3d83af', foreground: '#ffffff' },
+  { name: 'Richmond Tigers', logo: Assets.RICH.logo, song: Assets.RICH.song, background: '#000000', foreground: '#f4d849' },
+  { name: 'St Kilda Saints', logo: Assets.STK.logo, song: Assets.STK.song, background: '#000000', foreground: '#ffffff' },
+  { name: 'Sydney Swans', logo: Assets.SYD.logo, song: Assets.SYD.song, background: '#ffffff', foreground: '#d03d32' },
+  { name: 'Western Bulldogs', logo: Assets.WB.logo, song: Assets.WB.song, background: '#2042a6', foreground: '#ffffff' },
+  { name: 'West Coast Eagles', logo: Assets.WCE.logo, song: Assets.WCE.song, background: '#183c8f', foreground: '#e6aa3b' },
 ];
 
 const initialState: GameState = {
@@ -316,7 +322,7 @@ function GameSelect({
             }}
           >
             <img
-              src={team.url}
+              src={team.logo}
               height={100}
               width={100}
             />
@@ -340,12 +346,28 @@ function GameInProgress({
     if (!audioRef.current || state.quarter === 'PG') return;
     audioRef.current.src = Assets.Siren;
     audioRef.current.play();
+    audioRef.current.onended = () => {
+      if (state.quarter === 'FT') {
+        if (state.homeScore.total > state.awayScore.total) {
+          audioRef.current.src = state.homeTeam.song;
+        } else if (state.awayScore.total > state.homeScore.total) {
+          audioRef.current.src = state.awayTeam.song;
+        } else {
+          audioRef.current.src = Assets.Draw;
+        }
+        audioRef.current.play();
+        audioRef.current.onended = null;
+      }
+    }
   }, [ audioRef, state.quarter ]);
 
   return (
     <>
-      {[ 'PG', 'QT', 'HT', '3QT' ].includes(state.quarter) && (
-        <StartGame dispatch={dispatch} />
+      {[ 'PG' ].includes(state.quarter) && (
+        <StartGame state={state} dispatch={dispatch} />
+      )}
+      {[ 'QT', 'HT', '3QT' ].includes(state.quarter) && (
+        <StartQuarter dispatch={dispatch} />
       )}
       {[ '1ST', '2ND', '3RD', '4TH' ].includes(state.quarter) && (
         <ScoreButtons dispatch={dispatch} />
@@ -356,6 +378,77 @@ function GameInProgress({
 };
 
 function StartGame({
+  state,
+  dispatch,
+}: {
+  state: GameStateInProgress,
+  dispatch: React.ActionDispatch<[action: GameStateAction]>,
+}): React.ReactElement {
+  const audioRef = useRef(new Audio());
+  const [ playing, setPlaying ] = useState<Team | null>(null);
+
+  function handleClick(): void {
+    dispatch({ type: 'QUARTER_CHANGE' });
+  };
+
+  function handleClickSong(team: Team): () => void {
+    return function () {
+      if (playing === team) {
+        audioRef.current.pause();
+        setPlaying(null);
+      } else {
+        setPlaying(team);
+        audioRef.current.src = team.song;
+        audioRef.current.play();
+        audioRef.current.onended = () => setPlaying(null);
+      }
+    };
+  };
+
+  return (
+    <Stack
+      direction="row"
+      spacing={4}
+      style={{
+        position: 'fixed',
+        left: '50%',
+        top: '50%',
+        transform: 'translateX(-50%) translateY(-50%)',
+      }}
+    >
+      <IconButton
+        onClick={handleClickSong(state.homeTeam)}
+        sx={{
+          backgroundColor: state.homeTeam.background,
+          color: state.homeTeam.foreground,
+          '&:hover': { backgroundColor: 'text.primary' }
+        }}
+      >
+        {playing === state.homeTeam ? <Stop /> : <MusicNote />}
+      </IconButton>
+      <Button
+        variant="contained"
+        onClick={handleClick}
+      >
+        Start game
+      </Button>
+      <IconButton
+        onClick={handleClickSong(state.awayTeam)}
+        sx={{
+          backgroundColor: state.awayTeam.background,
+          color: state.awayTeam.foreground,
+          '&:hover': { backgroundColor: 'text.primary' }
+        }}
+      >
+        {playing === state.awayTeam ? <Stop /> : <MusicNote />}
+      </IconButton>
+    </Stack>
+  )
+};
+
+
+
+function StartQuarter({
   dispatch,
 }: {
   dispatch: React.ActionDispatch<[action: GameStateAction]>,
@@ -365,9 +458,10 @@ function StartGame({
   };
 
   return (
-    <div
+    <Stack
+      direction="row"
+      spacing={4}
       style={{
-        display: 'flex',
         position: 'fixed',
         left: '50%',
         top: '50%',
@@ -378,9 +472,9 @@ function StartGame({
         variant="contained"
         onClick={handleClick}
       >
-        Start game
+        Start quarter
       </Button>
-    </div>
+    </Stack>
   )
 };
 
@@ -464,7 +558,7 @@ function ScoreBug({
         }}
       >
         <img
-          src={state.homeTeam.url}
+          src={state.homeTeam.logo}
           height={50} width={50}
           style={{ borderRadius: '8px 0px 0px 8px' }}
         />
@@ -502,7 +596,7 @@ function ScoreBug({
         <div style={{ fontSize: '1.5em', textAlign: 'center', width: '2.5ch' }}>{state.awayScore.total}</div>
 
         <img
-          src={state.awayTeam.url}
+          src={state.awayTeam.logo}
           height={50} width={50}
           style={{ borderRadius: '0px 8px 8px 0px' }}
         />
