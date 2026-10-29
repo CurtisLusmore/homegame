@@ -296,12 +296,12 @@ function GameSelect({
       container
       spacing={2}
       columns={{ xs: 3, sm: 6 }}
-      style={{
+      sx={{
         left: '50%',
         position: 'fixed',
         top: '50%',
         transform: 'translateX(-50%) translateY(-50%)',
-        minWidth: 'fit-content',
+        width: { sm: '332px', md: '680px' },
         maxWidth: '100%',
       }}
     >
