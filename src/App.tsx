@@ -301,7 +301,7 @@ function GameSelect({
         position: 'fixed',
         top: '50%',
         transform: 'translateX(-50%) translateY(-50%)',
-        width: { sm: '332px', md: '680px' },
+        width: { xs: '332px', sm: '680px' },
         maxWidth: '100%',
       }}
     >
@@ -414,6 +414,7 @@ function StartGame({
         left: '50%',
         top: '50%',
         transform: 'translateX(-50%) translateY(-50%)',
+        minWidth: '280px',
       }}
     >
       <IconButton
