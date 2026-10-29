@@ -80,24 +80,24 @@ type GameState =
   | GameStateCompleted;
 
 const teams: Team[] = [
-  { name: 'Adelaide Crows', url: Assets.ADEL, background: '#fff', foreground: '#000' },
+  { name: 'Adelaide Crows', url: Assets.ADEL, background: '#0f1432', foreground: '#f0ae3c' },
   { name: 'Brisbane Lions', url: Assets.BL, background: '#71133f', foreground: '#f4c16a', disabled: true },
-  { name: 'Carlton Blues', url: Assets.CARL, background: '#fff', foreground: '#000' },
-  { name: 'Collingwood Magpies', url: Assets.COLL, background: '#fff', foreground: '#000' },
-  { name: 'Essendon Bombers', url: Assets.ESS, background: '#fff', foreground: '#000' },
+  { name: 'Carlton Blues', url: Assets.CARL, background: '#091f31', foreground: '#ffffff' },
+  { name: 'Collingwood Magpies', url: Assets.COLL, background: '#000000', foreground: '#ffffff' },
+  { name: 'Essendon Bombers', url: Assets.ESS, background: '#000000', foreground: '#ffffff' },
   { name: 'Fremantle Dockers', url: Assets.FRE, background: '#260e50', foreground: '#fff' },
-  { name: 'Gold Coast Suns', url: Assets.GCFC, background: '#fff', foreground: '#000' },
-  { name: 'Geelong Cats', url: Assets.GEEL, background: '#fff', foreground: '#000' },
-  { name: 'GWS Giants', url: Assets.GWS, background: '#fff', foreground: '#000' },
-  { name: 'Hawthorn Hawks', url: Assets.HAW, background: '#fff', foreground: '#000' },
-  { name: 'Melbourne Demons', url: Assets.MELB, background: '#fff', foreground: '#000' },
-  { name: 'North Melbourne Kangaroos', url: Assets.NMFC, background: '#fff', foreground: '#000' },
-  { name: 'Port Adelaide Power', url: Assets.PORT, background: '#fff', foreground: '#000' },
-  { name: 'Richmond Tigers', url: Assets.RICH, background: '#fff', foreground: '#000' },
-  { name: 'St Kilda Saints', url: Assets.STK, background: '#fff', foreground: '#000' },
-  { name: 'Sydney Swans', url: Assets.SYD, background: '#fff', foreground: '#000' },
-  { name: 'Western Bulldogs', url: Assets.WB, background: '#fff', foreground: '#000' },
-  { name: 'West Coast Eagles', url: Assets.WCE, background: '#fff', foreground: '#000' },
+  { name: 'Gold Coast Suns', url: Assets.GCFC, background: '#7d1710', foreground: '#f9e26f' },
+  { name: 'Geelong Cats', url: Assets.GEEL, background: '#ffffff', foreground: '#0a2243' },
+  { name: 'GWS Giants', url: Assets.GWS, background: '#535051', foreground: '#ed8536' },
+  { name: 'Hawthorn Hawks', url: Assets.HAW, background: '#643f1a', foreground: '#f7cd4e' },
+  { name: 'Melbourne Demons', url: Assets.MELB, background: '#0d192f', foreground: '#cc2c26' },
+  { name: 'North Melbourne Kangaroos', url: Assets.NMFC, background: '#16399a', foreground: '#ffffff' },
+  { name: 'Port Adelaide Power', url: Assets.PORT, background: '#3d83af', foreground: '#ffffff' },
+  { name: 'Richmond Tigers', url: Assets.RICH, background: '#000000', foreground: '#f4d849' },
+  { name: 'St Kilda Saints', url: Assets.STK, background: '#000000', foreground: '#ffffff' },
+  { name: 'Sydney Swans', url: Assets.SYD, background: '#ffffff', foreground: '#d03d32' },
+  { name: 'Western Bulldogs', url: Assets.WB, background: '#2042a6', foreground: '#ffffff' },
+  { name: 'West Coast Eagles', url: Assets.WCE, background: '#183c8f', foreground: '#e6aa3b' },
 ];
 
 const initialState: GameState = {
@@ -289,18 +289,20 @@ function GameSelect({
     <Grid
       container
       spacing={2}
+      columns={{ xs: 3, sm: 6 }}
       style={{
         left: '50%',
         position: 'fixed',
         top: '50%',
         transform: 'translateX(-50%) translateY(-50%)',
-        width: '680px',
+        minWidth: 'fit-content',
+        maxWidth: '100%',
       }}
     >
       {teams.map(team => (
         <Grid
           key={team.name}
-          size={2}
+          size={1}
         >
           <button
             title={team.name}
