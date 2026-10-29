@@ -4,7 +4,7 @@
   "id": "/homegame/",
   "start_url": "/homegame/",
   "scope": "/homegame/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#71133f",
   "theme_color": "#71133f",
   "icons": [
