@@ -8,7 +8,27 @@ self.addEventListener('install', (event) => {
         SCOPE,
         SCOPE + 'manifest.json',
         SCOPE + 'icon-192.png',
-        SCOPE + 'icon-512.png'
+        SCOPE + 'icon-512.png',
+        SCOPE + 'adel.mp3',
+        SCOPE + 'bl.mp3',
+        SCOPE + 'carl.mp3',
+        SCOPE + 'coll.mp3',
+        SCOPE + 'ess.mp3',
+        SCOPE + 'fre.mp3',
+        SCOPE + 'gcfc.mp3',
+        SCOPE + 'geel.mp3',
+        SCOPE + 'gws.mp3',
+        SCOPE + 'haw.mp3',
+        SCOPE + 'melb.mp3',
+        SCOPE + 'nmfc.mp3',
+        SCOPE + 'port.mp3',
+        SCOPE + 'rich.mp3',
+        SCOPE + 'stk.mp3',
+        SCOPE + 'syd.mp3',
+        SCOPE + 'wb.mp3',
+        SCOPE + 'wce.mp3',
+        SCOPE + 'siren.mp3',
+        SCOPE + 'draw.mp3',
       ])
     )
   );

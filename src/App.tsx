@@ -6,10 +6,13 @@ import {
   Stack,
 } from '@mui/material';
 import {
+  Campaign,
   MusicNote,
+  Pause,
+  PlayArrow,
   Stop,
+  Undo,
 } from '@mui/icons-material';
-import * as Assets from './assets';
 import {
   CssBaseline,
 } from './components';
@@ -45,13 +48,13 @@ type QuarterState = typeof Quarters[number];
 
 const QuarterDurations: Record<QuarterState, number> = {
   'PG': -1,
-  '1ST': 300000,
-  'QT': 60000,
-  '2ND': 300000,
-  'HT': 60000,
-  '3RD': 300000,
-  '3QT': 60000,
-  '4TH': 300000,
+  '1ST': 285000,
+  'QT': 15000,
+  '2ND': 285000,
+  'HT': 30000,
+  '3RD': 285000,
+  '3QT': 15000,
+  '4TH': 285000,
   'FT': -1,
 };
 
@@ -70,40 +73,32 @@ type GameStateInProgress = {
   quarter: QuarterState;
   startedAt: number;
   time: number;
-}
-
-type GameStateCompleted = {
-  status: 'COMPLETED';
-  homeTeam: Team;
-  awayTeam: Team;
-  homeScore: Score;
-  awayScore: Score;
+  paused: boolean;
 }
 
 type GameState =
   | GameStateSelecting
-  | GameStateInProgress
-  | GameStateCompleted;
+  | GameStateInProgress;
 
 const teams: Team[] = [
-  { name: 'Adelaide Crows', logo: Assets.ADEL.logo, song: Assets.ADEL.song, background: '#0f1432', foreground: '#f0ae3c' },
-  { name: 'Brisbane Lions', logo: Assets.BL.logo, song: Assets.BL.song, background: '#71133f', foreground: '#f4c16a', disabled: true },
-  { name: 'Carlton Blues', logo: Assets.CARL.logo, song: Assets.CARL.song, background: '#091f31', foreground: '#ffffff' },
-  { name: 'Collingwood Magpies', logo: Assets.COLL.logo, song: Assets.COLL.song, background: '#000000', foreground: '#ffffff' },
-  { name: 'Essendon Bombers', logo: Assets.ESS.logo, song: Assets.ESS.song, background: '#000000', foreground: '#ffffff' },
-  { name: 'Fremantle Dockers', logo: Assets.FRE.logo, song: Assets.FRE.song, background: '#260e50', foreground: '#fff' },
-  { name: 'Gold Coast Suns', logo: Assets.GCFC.logo, song: Assets.GCFC.song, background: '#7d1710', foreground: '#f9e26f' },
-  { name: 'Geelong Cats', logo: Assets.GEEL.logo, song: Assets.GEEL.song, background: '#ffffff', foreground: '#0a2243' },
-  { name: 'GWS Giants', logo: Assets.GWS.logo, song: Assets.GWS.song, background: '#535051', foreground: '#ed8536' },
-  { name: 'Hawthorn Hawks', logo: Assets.HAW.logo, song: Assets.HAW.song, background: '#643f1a', foreground: '#f7cd4e' },
-  { name: 'Melbourne Demons', logo: Assets.MELB.logo, song: Assets.MELB.song, background: '#0d192f', foreground: '#cc2c26' },
-  { name: 'North Melbourne Kangaroos', logo: Assets.NMFC.logo, song: Assets.NMFC.song, background: '#16399a', foreground: '#ffffff' },
-  { name: 'Port Adelaide Power', logo: Assets.PORT.logo, song: Assets.PORT.song, background: '#3d83af', foreground: '#ffffff' },
-  { name: 'Richmond Tigers', logo: Assets.RICH.logo, song: Assets.RICH.song, background: '#000000', foreground: '#f4d849' },
-  { name: 'St Kilda Saints', logo: Assets.STK.logo, song: Assets.STK.song, background: '#000000', foreground: '#ffffff' },
-  { name: 'Sydney Swans', logo: Assets.SYD.logo, song: Assets.SYD.song, background: '#ffffff', foreground: '#d03d32' },
-  { name: 'Western Bulldogs', logo: Assets.WB.logo, song: Assets.WB.song, background: '#2042a6', foreground: '#ffffff' },
-  { name: 'West Coast Eagles', logo: Assets.WCE.logo, song: Assets.WCE.song, background: '#183c8f', foreground: '#e6aa3b' },
+  { name: 'Adelaide Crows', logo: 'adel.jpg', song: 'adel.mp3', background: '#0f1432', foreground: '#f0ae3c' },
+  { name: 'Brisbane Lions', logo: 'bl.jpg', song: 'bl.mp3', background: '#71133f', foreground: '#f4c16a', disabled: true },
+  { name: 'Carlton Blues', logo: 'carl.jpg', song: 'carl.mp3', background: '#091f31', foreground: '#ffffff' },
+  { name: 'Collingwood Magpies', logo: 'coll.jpg', song: 'coll.mp3', background: '#000000', foreground: '#ffffff' },
+  { name: 'Essendon Bombers', logo: 'ess.jpg', song: 'ess.mp3', background: '#000000', foreground: '#ffffff' },
+  { name: 'Fremantle Dockers', logo: 'fre.jpg', song: 'fre.mp3', background: '#260e50', foreground: '#fff' },
+  { name: 'Gold Coast Suns', logo: 'gcfc.jpg', song: 'gcfc.mp3', background: '#7d1710', foreground: '#f9e26f' },
+  { name: 'Geelong Cats', logo: 'geel.jpg', song: 'geel.mp3', background: '#ffffff', foreground: '#0a2243' },
+  { name: 'GWS Giants', logo: 'gws.jpg', song: 'gws.mp3', background: '#535051', foreground: '#ed8536' },
+  { name: 'Hawthorn Hawks', logo: 'haw.jpg', song: 'haw.mp3', background: '#643f1a', foreground: '#f7cd4e' },
+  { name: 'Melbourne Demons', logo: 'melb.jpg', song: 'melb.mp3', background: '#0d192f', foreground: '#cc2c26' },
+  { name: 'North Melbourne Kangaroos', logo: 'nmfc.jpg', song: 'nmfc.mp3', background: '#16399a', foreground: '#ffffff' },
+  { name: 'Port Adelaide Power', logo: 'port.jpg', song: 'port.mp3', background: '#3d83af', foreground: '#ffffff' },
+  { name: 'Richmond Tigers', logo: 'rich.jpg', song: 'rich.mp3', background: '#000000', foreground: '#f4d849' },
+  { name: 'St Kilda Saints', logo: 'stk.jpg', song: 'stk.mp3', background: '#000000', foreground: '#ffffff' },
+  { name: 'Sydney Swans', logo: 'syd.jpg', song: 'syd.mp3', background: '#ffffff', foreground: '#d03d32' },
+  { name: 'Western Bulldogs', logo: 'wb.jpg', song: 'wb.mp3', background: '#2042a6', foreground: '#ffffff' },
+  { name: 'West Coast Eagles', logo: 'wce.jpg', song: 'wce.mp3', background: '#183c8f', foreground: '#e6aa3b' },
 ];
 
 const initialState: GameState = {
@@ -116,13 +111,14 @@ type GameStartedAction = {
   awayTeam: Team;
 }
 
-type QuarterChangeAction = {
-  type: 'QUARTER_CHANGE';
-}
-
 type TimeUpdateAction = {
   type: 'TIME_UPDATE';
-  time: number;
+  ellapsed: number;
+  endQuarter?: boolean;
+}
+
+type PauseResumeAction = {
+  type: 'PAUSE_RESUME';
 }
 
 type ScoreAction = {
@@ -135,17 +131,17 @@ type UndoScoreAction = {
   type: 'UNDO_SCORE';
 }
 
-type GameCompletedAction = {
-  type: 'GAME_COMPLETED';
+type ResetAction = {
+  type: 'RESET';
 }
 
 type GameStateAction =
   | GameStartedAction
-  | QuarterChangeAction
   | TimeUpdateAction
+  | PauseResumeAction
   | ScoreAction
   | UndoScoreAction
-  | GameCompletedAction;
+  | ResetAction;
 
 function reduce(state: GameState, action: GameStateAction): GameState {
   switch (action.type) {
@@ -161,25 +157,34 @@ function reduce(state: GameState, action: GameStateAction): GameState {
         quarter: 'PG',
         startedAt: Date.now(),
         time: QuarterDurations['PG'],
-      };
-    }
-
-    case 'QUARTER_CHANGE': {
-      if (state.status !== 'IN_PROGRESS') throw new Error('Invalid action');
-      const quarter = Quarters[Quarters.indexOf(state.quarter) + 1];
-      return {
-        ...state,
-        quarter,
-        startedAt: Date.now(),
-        time: QuarterDurations[quarter],
+        paused: false,
       };
     }
 
     case 'TIME_UPDATE': {
       if (state.status !== 'IN_PROGRESS') throw new Error('Invalid action');
+      const time = state.time - action.ellapsed;
+      if (action.endQuarter || time <= 0) {
+        const quarter = Quarters[Quarters.indexOf(state.quarter) + 1];
+        return {
+          ...state,
+          quarter,
+          startedAt: Date.now(),
+          time: QuarterDurations[quarter],
+        };
+      } else {
+        return {
+          ...state,
+          time: state.time - action.ellapsed,
+        };
+      }
+    }
+
+    case 'PAUSE_RESUME': {
+      if (state.status !== 'IN_PROGRESS') throw new Error('Invalid action');
       return {
         ...state,
-        time: action.time,
+        paused: !state.paused,
       };
     }
 
@@ -224,12 +229,8 @@ function reduce(state: GameState, action: GameStateAction): GameState {
       }
     }
 
-    case 'GAME_COMPLETED': {
-      if (state.status !== 'IN_PROGRESS') throw new Error('Invalid action');
-      return {
-        ...state,
-        status: 'COMPLETED',
-      };
+    case 'RESET': {
+      return { ...initialState };
     }
   }
 
@@ -252,20 +253,20 @@ export default function App(): React.ReactElement {
   const [ state, dispatch ] = useReducer(reduce, initialState);
 
   useEffect(() => {
+    let lastTimestamp = performance.now();
     let handle: number;
-    function tick(): void {
-      if (state.status !== 'IN_PROGRESS' || state.time < 0) return;
-      const time = state.startedAt + QuarterDurations[state.quarter] - Date.now();
-      if (time <= 0) {
-        dispatch({ type: 'QUARTER_CHANGE' });
-      } else {
-        dispatch({ type: 'TIME_UPDATE', time });
+    function tick(timestamp: DOMHighResTimeStamp): void {
+      if (state.status !== 'IN_PROGRESS' || [ 'PG', 'FT' ].includes(state.quarter)) return;
+      if (!state.paused) {
+        const ellapsed = timestamp - lastTimestamp;
+        lastTimestamp = timestamp;
+        dispatch({ type: 'TIME_UPDATE', ellapsed });
       }
       handle = requestAnimationFrame(tick);
     };
     handle = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(handle);
-  }, [ (state as GameStateInProgress).quarter, (state as GameStateInProgress).startedAt ])
+  }, [ (state as GameStateInProgress).quarter, (state as GameStateInProgress).paused ])
 
   return (
     <>
@@ -344,7 +345,7 @@ function GameInProgress({
 
   useEffect(() => {
     if (!audioRef.current || state.quarter === 'PG') return;
-    audioRef.current.src = Assets.Siren;
+    audioRef.current.src = 'siren.mp3';
     audioRef.current.play();
     audioRef.current.onended = () => {
       if (state.quarter === 'FT') {
@@ -353,7 +354,7 @@ function GameInProgress({
         } else if (state.awayScore.total > state.homeScore.total) {
           audioRef.current.src = state.awayTeam.song;
         } else {
-          audioRef.current.src = Assets.Draw;
+          audioRef.current.src = 'draw.mp3';
         }
         audioRef.current.play();
         audioRef.current.onended = null;
@@ -370,7 +371,10 @@ function GameInProgress({
         <StartQuarter dispatch={dispatch} />
       )}
       {[ '1ST', '2ND', '3RD', '4TH' ].includes(state.quarter) && (
-        <ScoreButtons dispatch={dispatch} />
+        <ScoreButtons state={state} dispatch={dispatch} />
+      )}
+      {[ 'FT' ].includes(state.quarter) && (
+        <ResetButton dispatch={dispatch} />
       )}
       <ScoreBug state={state} />
     </>
@@ -388,7 +392,7 @@ function StartGame({
   const [ playing, setPlaying ] = useState<Team | null>(null);
 
   function handleClick(): void {
-    dispatch({ type: 'QUARTER_CHANGE' });
+    dispatch({ type: 'TIME_UPDATE', ellapsed: 0, endQuarter: true });
   };
 
   function handleClickSong(team: Team): () => void {
@@ -418,6 +422,7 @@ function StartGame({
       }}
     >
       <IconButton
+        size="large"
         onClick={handleClickSong(state.homeTeam)}
         sx={{
           backgroundColor: state.homeTeam.background,
@@ -429,11 +434,14 @@ function StartGame({
       </IconButton>
       <Button
         variant="contained"
+        size="large"
         onClick={handleClick}
+        startIcon={<Campaign />}
       >
-        Start game
+        Start
       </Button>
       <IconButton
+        size="large"
         onClick={handleClickSong(state.awayTeam)}
         sx={{
           backgroundColor: state.awayTeam.background,
@@ -447,15 +455,13 @@ function StartGame({
   )
 };
 
-
-
 function StartQuarter({
   dispatch,
 }: {
   dispatch: React.ActionDispatch<[action: GameStateAction]>,
 }): React.ReactElement {
   function handleClick(): void {
-    dispatch({ type: 'QUARTER_CHANGE' });
+    dispatch({ type: 'TIME_UPDATE', ellapsed: 0, endQuarter: true });
   };
 
   return (
@@ -471,17 +477,21 @@ function StartQuarter({
     >
       <Button
         variant="contained"
+        size="large"
         onClick={handleClick}
+        startIcon={<Campaign />}
       >
-        Start quarter
+        Start
       </Button>
     </Stack>
   )
 };
 
 function ScoreButtons({
+  state,
   dispatch,
 }: {
+  state: GameStateInProgress,
   dispatch: React.ActionDispatch<[action: GameStateAction]>,
 }): React.ReactElement {
   function handleClick(team: 'home' | 'away', score: 'goal' | 'behind'): () => void {
@@ -490,12 +500,16 @@ function ScoreButtons({
     };
   };
 
+  function handleClickPause(): void {
+    dispatch({ type: 'PAUSE_RESUME' });
+  };
+
   function handleClickUndo(): void {
     dispatch({ type: 'UNDO_SCORE' });
   };
 
   function handleClickEnd(): void {
-    dispatch({ type: 'QUARTER_CHANGE' });
+    dispatch({ type: 'TIME_UPDATE', ellapsed: 0, endQuarter: true });
   };
 
   return (
@@ -510,25 +524,116 @@ function ScoreButtons({
       }}
     >
       <Grid size={4}>
-        <Button fullWidth variant="contained" onClick={handleClick('home', 'goal')}>Goal</Button>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          onClick={handleClick('home', 'goal')}
+        >
+          Goal
+        </Button>
       </Grid>
       <Grid size={4} offset={4}>
-        <Button fullWidth variant="contained" onClick={handleClick('away', 'goal')}>Goal</Button>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          onClick={handleClick('away', 'goal')}
+        >
+          Goal
+        </Button>
+      </Grid>
+
+      <Grid size={4}>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          onClick={handleClick('home', 'behind')}
+        >
+          Behind
+        </Button>
       </Grid>
       <Grid size={4}>
-        <Button fullWidth variant="contained" onClick={handleClick('home', 'behind')}>Behind</Button>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          onClick={handleClickPause}
+          startIcon={state.paused ? <PlayArrow /> : <Pause />}
+        >
+          {state.paused ? 'Play' : 'Pause'}
+        </Button>
+      </Grid>
+      <Grid size={4}>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          onClick={handleClick('away', 'behind')}
+        >
+          Behind
+        </Button>
+      </Grid>
+
+      <Grid size={4}>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          color="warning"
+          onClick={handleClickUndo}
+          startIcon={<Undo />}
+        >
+          Undo
+        </Button>
       </Grid>
       <Grid size={4} offset={4}>
-        <Button fullWidth variant="contained" onClick={handleClick('away', 'behind')}>Behind</Button>
-      </Grid>
-      <Grid size={4} offset={2}>
-        <Button fullWidth variant="contained" onClick={handleClickUndo} sx={{ margin: 'auto' }}>Undo</Button>
-      </Grid>
-      <Grid size={4}>
-        <Button fullWidth variant="contained" onClick={handleClickEnd} sx={{ margin: 'auto' }}>End</Button>
+        <Button
+          fullWidth
+          variant="contained"
+          size="large"
+          color="error"
+          onClick={handleClickEnd}
+          startIcon={<Campaign />}
+        >
+          End
+        </Button>
       </Grid>
     </Grid>
   );
+};
+
+function ResetButton({
+  dispatch,
+}: {
+  dispatch: React.ActionDispatch<[action: GameStateAction]>,
+}): React.ReactElement {
+  function handleClick(): void {
+    dispatch({ type: 'RESET' });
+  };
+
+  return (
+    <Stack
+      direction="row"
+      spacing={4}
+      style={{
+        position: 'fixed',
+        left: '50%',
+        top: '50%',
+        transform: 'translateX(-50%) translateY(-50%)',
+      }}
+    >
+      <Button
+        variant="contained"
+        size="large"
+        onClick={handleClick}
+        startIcon={<Undo />}
+      >
+        Reset
+      </Button>
+    </Stack>
+  )
 };
 
 function ScoreBug({
@@ -608,5 +713,5 @@ function ScoreBug({
 
 function formatTime(ms: number): string {
   if (ms < 0) return "--:--";
-  return new Date(ms).toISOString().substring(14,19);
+  return new Date(ms + 500).toISOString().substring(14,19);
 };
